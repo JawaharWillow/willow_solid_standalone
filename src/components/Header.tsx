@@ -45,7 +45,7 @@ const Header = () => {
             <A href="/videos" class="no-underline hover:underline">Videos</A>
           </li>
           <li class="py-2 px-4">
-            <A href="/fixtures.html" class="no-underline hover:underline">Fixtures</A>
+            <A href="/fixtures.html" class="no-underline hover:underline" target='_blank'>Fixtures</A>
           </li>
           <li class="py-2 px-4">
             <A href="/results" class="no-underline hover:underline">Results</A>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fixtures Page</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#1e202d] text-[#ffffff]">
+  <div class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="container m-auto">
+      <nav class="flex justify-between items-center p-4">
+        <!-- Logo -->
+        <a href="/">
+          <img
+            class="w-40"
+            src="https://img.willow.tv/apps/wlw-nw-lgo.svg"
+            alt="Willow Logo"
+          />
+        </a>
+  
+        <!-- Hamburger for Mobile -->
+        <button
+          class="md:hidden flex items-center text-white"
+          onclick="toggleMenu()"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+  
+        <!-- Desktop Menu -->
+        <ul class="hidden md:flex justify-between gap-2">
+          <li class="py-2 px-4"><a href="/" class="no-underline hover:underline">Home</a></li>
+          <li class="py-2 px-4"><a href="/videos" class="no-underline hover:underline">Videos</a></li>
+          <li class="py-2 px-4"><a href="/fixtures.html" class="no-underline hover:underline">Fixtures</a></li>
+          <li class="py-2 px-4"><a href="/results" class="no-underline hover:underline">Results</a></li>
+          <li class="py-2 px-4"><a href="/tvchannel" class="no-underline hover:underline">TV Channel</a></li>
+          <li class="py-2 px-4 relative">
+            <a href="#" class="no-underline hover:underline" onclick="toggleTVProvider()" id="wlw-header-tve-toggle">TV Provider</a>
+          </li>
+          <li class="py-2 px-4">
+            <a href="#email_verify_mdl" class="no-underline hover:underline">Verify Your Email</a>
+          </li>
+        </ul>
+  
+        <!-- User Dropdown (Desktop) -->
+        <ul class="hidden md:flex">
+          <li class="py-2 px-4 relative group">
+            <a href="/login" class="flex items-center gap-2 no-underline hover:underline">
+              <img src="https://img.willow.tv/apps/wlw-lgt-ico_r1.svg" alt="Willow Login Icon" class="w-5 h-5" />
+              <span>User</span>
+            </a>
+            <div class="absolute top-full left-0 mt-2 hidden group-hover:block bg-white shadow-md z-10">
+              <ul class="dpdown_men text-gray-800">
+                <li><a href="/myprofile" class="block px-4 py-2 hover:bg-gray-100 no-underline">Profile</a></li>
+                <li><a href="/logout" class="block px-4 py-2 hover:bg-gray-100 no-underline">Logout</a></li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </nav>
+  
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="md:hidden hidden pb-20 absolute w-[100%] pt-[10%] pl-[10%] bg-[#1e202df7]">
+        <ul class="flex flex-col gap-2">
+          <li><a href="/" class="no-underline hover:underline block py-2">Home</a></li>
+          <li><a href="/videos" class="no-underline hover:underline block py-2">Videos</a></li>
+          <li><a href="/fixtures.html" class="no-underline hover:underline block py-2">Fixtures</a></li>
+          <li><a href="/results" class="no-underline hover:underline block py-2">Results</a></li>
+          <li><a href="/tvchannel" class="no-underline hover:underline block py-2">TV Channel</a></li>
+          <li><a href="#" class="no-underline hover:underline block py-2" onclick="toggleTVProvider()">TV Provider</a></li>
+          <li><a href="#email_verify_mdl" class="no-underline hover:underline block py-2">Verify Your Email</a></li>
+          <li><a href="/myprofile" class="no-underline hover:underline block py-2">Profile</a></li>
+          <li><a href="/logout" class="no-underline hover:underline block py-2">Logout</a></li>
+        </ul>
+      </div>
+    </header>
+    
+    
+
+    <!-- Main Content -->
+    <main class="container flex-grow p-6 m-auto">
+      <!-- Tabs -->
+      <div class="flex flex-col md:flex-row justify-between">
+        <div class="mb-4">
+          <nav class="flex space-x-4" id="tab-nav">
+            <button id="tab-date" class="tab-button text-white px-4 py-2 bg-blue-600 rounded-t">By Date</button>
+            <button id="tab-series" class="tab-button text-white px-4 py-2 bg-gray-600 rounded-t">By Series</button>
+          </nav>
+        </div>
+
+        <!-- Filter Row -->
+        <div class="mb-4 flex flex-wrap items-center gap-4 filter-sec">
+          <button id="clear-filter" class="p-2 bg-red-600 text-white rounded hidden">Clear</button>
+          <select id="team-filter" class="w-[50%] p-2 rounded bg-gray-800 text-white border border-gray-600">
+            <option value="">Filter by Team</option>
+          </select>
+          <div class="flex items-center gap-2">
+            <input type="date" id="date-filter" class="p-2 rounded bg-gray-800 text-white border border-gray-600">
+           
+          </div>
+        </div>
+      </div>
+
+      <!-- Fixtures Container -->
+      <div id="fixtures-container" class="space-y-6"></div>
+
+      <!-- Series Image -->
+      <div id="series-image" class="hidden text-left mt-8"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white text-center p-4 mt-auto">
+      <p>&copy; 2025 Fixtures. All Rights Reserved.</p>
+    </footer>
+  </div>
+
+  <script>
+    const API_URL = 'https://static.willow.tv/apps/fixtures.json.gz';
+    const container = document.getElementById('fixtures-container');
+    const teamFilter = document.getElementById('team-filter');
+    const dateFilter = document.getElementById('date-filter');
+    const tabDateBtn = document.getElementById('tab-date');
+    const tabSeriesBtn = document.getElementById('tab-series');
+    const seriesImage = document.getElementById('series-image');
+    const clearBtn = document.getElementById('clear-filter');
+    const filterSec = document.querySelector('.filter-sec');
+    let allFixtures = [];
+
+    async function fetchFixtures() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        allFixtures = data.result?.fixtures_by_date || [];
+        populateTeamDropdown(allFixtures);
+        renderFixtures(allFixtures);
+      } catch (error) {
+        console.error('Failed to fetch fixtures:', error);
+      }
+    }
+
+    async function fetchSeries() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        const seriesList = data.result?.fixtures_by_series || [];
+        seriesImage.innerHTML = '';
+        seriesList.forEach(series => {
+          const imgBase = "https://img.willow.tv" + series.img_path;
+          const mdb = series.thumbnails["ptr-mdb"];
+          const lgb = series.thumbnails["lgb"];
+          const seriesHTML = `
+            <div class="w-40 inline-block m-2 transition-transform hover:scale-105">
+              <img
+                class="w-40 h-auto rounded shadow-lg object-cover transition-all duration-300"
+                src="${imgBase}${mdb}"
+                alt="${series.series_name}"
+                onmouseover="this.src='${imgBase}${lgb}'"
+                onmouseout="this.src='${imgBase}${mdb}'"
+              />
+              <p class="mt-2 text-left text-sm">${series.series_name}</p>
+            </div>
+          `;
+          seriesImage.insertAdjacentHTML('beforeend', seriesHTML);
+        });
+      } catch (error) {
+        console.error('Failed to fetch series:', error);
+      }
+    }
+
+    function populateTeamDropdown(fixtures) {
+      const teams = new Set();
+      fixtures.forEach(match => {
+        teams.add(match.team_one_name);
+        teams.add(match.team_two_name);
+      });
+      [...teams].sort().forEach(team => {
+        const opt = document.createElement('option');
+        opt.value = team;
+        opt.textContent = team;
+        teamFilter.appendChild(opt);
+      });
+    }
+
+    function renderFixtures(fixtures) {
+      container.innerHTML = '';
+      let lastDate = null;
+
+      fixtures.forEach(match => {
+        const matchDate = match.pst_start_date.split('@')[0].trim();
+        const showDateHeading = matchDate !== lastDate;
+        lastDate = matchDate;
+
+        const matchHTML = `
+          <div>
+            ${showDateHeading ? `<h2 class="text-xl font-semibold mb-2">${matchDate}</h2>` : ''}
+            <div class="flex flex-col md:flex-row gap-4 bg-[#14161f] p-6 rounded">
+              <div><img class="w-[100%] h-[90px] object-cover sm:h-auto sm:w-40" src="https://img.willow.tv${match.img_path}${match.thumbnails.mdb}" alt="${match.title}"></div>
+              <div class="flex-1">
+                <h2 class="text-lg font-semibold">${match.team_one_name} <span class="text-gray-400">vs</span> ${match.team_two_name}</h2>
+                <h6 class="text-sm">${match.sub_title}, ${match.series_name}</h6>
+                <p class="flex items-center mt-1 font-medium text-gray-600 dark:text-gray-400 text-[#bdc2c2]"><img class="w-4 h-4 mr-2" src="https://img.willow.tv/apps/imgs/wlw-nd-ground.svg" />${match.venue}</p>
+              </div>
+              <div class="flex justify-center items-center gap-10">
+                <p class="text-lg text-[#bdc2c2]">${new Date(match.gmt_start_date).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</p>
+                ${match.display_live_link ? `
+                  <a href="/${match.match_slug}">
+                    <button type="button" class="px-4 py-2 bg-[#e01e25] text-white rounded hover:bg-red-700">Watch Live</button>
+                  </a>` : `
+                  <a href="/${match.match_slug}">
+                    <button type="button" class="px-4 py-2 bg-[#0076bd] text-white rounded hover:bg-red-700">Match Info</button>
+                  </a>`}
+              </div>
+            </div>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', matchHTML);
+      });
+    }
+
+    function renderFilteredFixtures() {
+      let filtered = allFixtures;
+      const team = teamFilter.value;
+      const date = dateFilter.value;
+
+      if (team) {
+        filtered = filtered.filter(f => f.team_one_name === team || f.team_two_name === team);
+      }
+      if (date) {
+        const selectedDate = new Date(date).toDateString();
+        filtered = filtered.filter(f => new Date(f.gmt_start_date).toDateString() === selectedDate);
+      }
+      renderFixtures(filtered);
+    }
+
+    // Tab event listeners
+    tabDateBtn.addEventListener('click', () => {
+      tabDateBtn.classList.replace('bg-gray-600', 'bg-blue-600');
+      tabSeriesBtn.classList.replace('bg-blue-600', 'bg-gray-600');
+      seriesImage.classList.add('hidden');
+      container.classList.remove('hidden');
+      filterSec.classList.remove('hidden'); 
+      renderFilteredFixtures();
+    });
+
+    tabSeriesBtn.addEventListener('click', () => {
+      tabSeriesBtn.classList.replace('bg-gray-600', 'bg-blue-600');
+      tabDateBtn.classList.replace('bg-blue-600', 'bg-gray-600');
+      container.classList.add('hidden');
+      seriesImage.classList.remove('hidden');
+      filterSec.classList.add('hidden'); 
+      fetchSeries();
+    });
+
+    // Filter and Clear events
+    dateFilter.addEventListener('change', () => {
+      renderFilteredFixtures();
+      checkFilters();
+    });
+
+    teamFilter.addEventListener('change', () => {
+      renderFilteredFixtures();
+      checkFilters();
+    });
+
+    clearBtn.addEventListener('click', () => {
+      dateFilter.value = '';
+      teamFilter.value = '';
+      clearBtn.classList.add('hidden');
+      renderFixtures(allFixtures);
+    });
+
+    function checkFilters() {
+      if (dateFilter.value || teamFilter.value) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+    }
+
+    fetchFixtures();
+
+    function toggleMenu() {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
+    }
+
+    function toggleTVProvider() {
+      const el = document.getElementById('wlw-header-tve');
+      if (el) el.classList.toggle('hidden');
+    }
+  </script>
+</body>
+</html>
